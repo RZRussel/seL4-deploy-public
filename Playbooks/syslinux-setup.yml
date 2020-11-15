@@ -1,0 +1,24 @@
+---
+  - hosts: vm_instances
+    become: true
+    tasks:
+    - name: "Link ldlinux.c32"
+      file:
+        src: "/usr/share/syslinux/ldlinux.c32"
+        dest: "/var/lib/sel4/tftpboot/ldlinux.c32"
+        state: link
+    - name: "Link mboot.c32"
+      file:
+        src: "/usr/share/syslinux/mboot.c32"
+        dest: "/var/lib/sel4/tftpboot/mboot.c32"
+        state: link
+    - name: "Link libcom32.c32"
+      file:
+        src: "/usr/share/syslinux/libcom32.c32"
+        dest: "/var/lib/sel4/tftpboot/libcom32.c32"
+        state: link
+    - name: "Link pxelinux.0"
+      file:
+        src: "/usr/share/syslinux/pxelinux.0"
+        dest: "/var/lib/sel4/tftpboot/pxelinux.0"
+        state: link

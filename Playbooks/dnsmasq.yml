@@ -1,0 +1,29 @@
+---
+  - hosts: vm_instances
+    become: true
+    tasks:
+    - name: "Update dnsmasq conf"
+      blockinfile:
+          backup: yes
+          path: /etc/dnsmasq.conf
+          block: |
+              interface=eth1
+              bind-interfaces
+              listen-address=10.254.254.1,127.0.0.1
+              dhcp-range=10.254.254.2,10.254.254.15,1d
+              dhcp-option=3,10.254.254.0
+              dhcp-option=6,8.8.8.8,4.2.2.2
+              server=8.8.8.8
+              dhcp-boot=/pxelinux.0,pxeserver,10.254.254.1
+              enable-tftp
+              tftp-root=/var/lib/sel4/tftpboot
+          validate: 'dnsmasq --test --conf-file=%s'
+    - name: "Restart dnsmasq"
+      service:
+          name: dnsmasq
+          state: restarted
+    - name: "Make sure Dnsmasq is running"
+      service:
+          name: dnsmasq
+          state: started
+          enabled: yes

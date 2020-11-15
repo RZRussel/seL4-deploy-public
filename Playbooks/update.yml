@@ -1,0 +1,6 @@
+---
+  - hosts: vm_instances
+    become: true
+    tasks:
+      - name: Update yum packages
+        yum: update_cache=yes

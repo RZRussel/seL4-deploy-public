@@ -1,0 +1,5 @@
+---
+  - import_playbook: update.yml
+  - import_playbook: pxe-sync.yml
+  - import_playbook: syslinux-setup.yml
+  - import_playbook: dnsmasq.yml

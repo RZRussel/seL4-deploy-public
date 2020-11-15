@@ -1,0 +1,47 @@
+---
+  - hosts: vm_instances
+    become: true
+    tasks:
+    - name: Include var
+      include_vars:
+              file: ../config.yml
+    - name: Update yum packages
+      yum: update_cache=yes
+    - name: "Install PXE TFTP utilities"
+      yum:
+        name: "{{ packages }}"
+      vars:
+        packages:
+        - dnsmasq
+        - syslinux
+    - name: "Allowing dnsmasq to read tftpboot directory"
+      selinux_permissive:
+       name: httpd_t
+       permissive: true
+    - name: "Checking folders"
+      stat:
+       path: "{{item}}"
+      register: folder_stats
+      with_items:
+      - ["/var/lib/sel4/tftpboot/pxelinux.cfg"]
+    - name: "Create directory structure"
+      file:
+        path: "{{item.item}}"
+        state: directory
+        mode: '0755'
+      when: item.stat.exists == false
+      with_items:
+      - "{{folder_stats.results}}"
+    - name: "Copy images"
+      copy:
+        src: ../Images/
+        dest: /var/lib/sel4/tftpboot/images/
+    - name: "Selecting image to boot"
+      blockinfile:
+              backup: yes
+              create: yes
+              path: /var/lib/sel4/tftpboot/pxelinux.cfg/default
+              block: |
+                      label seL4
+                      kernel mboot.c32
+                      append images/{{ kernel }} console_port=0x2f8 debug_port=0x2f8 --- images/{{ application }}
